@@ -564,6 +564,7 @@ def _combined_metric(
 def render_readme_metrics(
     group_metrics: dict[str, object],
     knockout_metrics: dict[str, object] | None = None,
+    include_scoreline_metrics: bool = False,
 ) -> str:
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     group_matches = int(group_metrics["matches"])
@@ -599,13 +600,16 @@ def render_readme_metrics(
             "| Avg probability on actual result | "
             f"{_format_percent(_combined_metric(group_metrics, knockout_metrics, 'average_actual_outcome_probability'))} |"
         ),
-        f"| Exact score hit rate | {_format_percent(top1_hits / max(matches, 1))} |",
-        f"| Top-5 scoreline hit rate | {_format_percent(top5_hits / max(matches, 1))} |",
         (
             "| Total goals expected vs actual | "
             f"{expected_total_goals:.1f} vs {actual_total_goals} |"
         ),
     ]
+    if include_scoreline_metrics:
+        rows[-1:-1] = [
+            f"| Exact score hit rate | {_format_percent(top1_hits / max(matches, 1))} |",
+            f"| Top-5 scoreline hit rate | {_format_percent(top5_hits / max(matches, 1))} |",
+        ]
     return "\n".join(rows)
 
 
@@ -628,7 +632,7 @@ def create_current_performance_report(
         "",
         "## Total Metrics",
         "",
-        render_readme_metrics(group_metrics, knockout_metrics),
+        render_readme_metrics(group_metrics, knockout_metrics, include_scoreline_metrics=True),
         "",
         "## Scope",
         "",

@@ -4,10 +4,16 @@ Transparent FIFA World Cup 2026 forecasting with Elo ratings, Poisson expected g
 
 The group-stage forecast was frozen before the tournament. Completed matches are scored against the original probabilities; results are not retro-fitted.
 
+Update or evaluate after new results:
+
+```bash
+python scripts/update_results.py
+```
+
 ## Current Record
 
 <!-- wc2026-metrics:start -->
-_Last updated by `python scripts/update_results.py` at 2026-06-30 18:35 UTC._
+_Last updated by `python scripts/update_results.py` at 2026-06-30 18:45 UTC._
 
 | Metric | Current value |
 | --- | ---: |
@@ -18,31 +24,16 @@ _Last updated by `python scripts/update_results.py` at 2026-06-30 18:35 UTC._
 | Log loss | 0.885 |
 | Brier score | 0.521 |
 | Avg probability on actual result | 48.8% |
-| Exact score hit rate | 15.8% |
-| Top-5 scoreline hit rate | 47.4% |
 | Total goals expected vs actual | 212.5 vs 221 |
 <!-- wc2026-metrics:end -->
 
 Current public performance report: [reports/current_performance.md](reports/current_performance.md)
 
-## Why Trust This?
-
-- Predictions use chronological pre-match features only.
-- No betting odds, player availability, or post-match ranking information is used.
-- Results are fetched and merged into fixed CSVs, then evaluated against saved prediction files.
-- The main refresh command is one script: `python scripts/update_results.py`.
-
 ## Honest Findings
 
-Simple rating/goal models were hard to beat. Extra ML, calibration, ensembles, rest-day features, and heavier recent-form machinery mostly added noise. The deployed model is:
+Simple rating/goal models were hard to beat. Extra ML, calibration, ensembles, rest-day features, and heavier recent-form machinery mostly added noise. The deployed model is `pre-match Elo + attack/defence Poisson + margin-class adjustment`.
 
-```text
-pre-match Elo + attack/defence Poisson + margin-class adjustment
-```
-
-The Poisson layer is kept because it gives one coherent distribution for expected goals, scorelines, totals, clean sheets, and tournament simulation. Rounded expected goals worked reasonably well for Scorito-style score picks, but the full probability distribution is better for evaluation.
-
-More detail: [reports/methodology.md](reports/methodology.md) and [reports/benchmark_comparison.md](reports/benchmark_comparison.md)
+More detail: [methodology](reports/methodology.md), [model card](reports/model_card.md), and [benchmark comparison](reports/benchmark_comparison.md).
 
 ## Quickstart
 
@@ -66,13 +57,7 @@ python -m pytest -q
 
 ## Update After Matches
 
-After new World Cup results are available:
-
-```bash
-python scripts/update_results.py
-```
-
-The command fetches available results, avoids duplicate match rows, re-runs evaluation, updates reports, and rewrites the metrics table in this README.
+`python scripts/update_results.py` fetches available results, avoids duplicate match rows, re-runs evaluation, updates reports, and rewrites the metrics table in this README.
 
 If the result source is unavailable but local result CSVs are current:
 
@@ -93,6 +78,12 @@ python scripts/update_results.py --skip-fetch
 | `tests/` | Regression and parser tests. |
 
 Generated raw data, processed features, predictions, and model artifacts are ignored by Git where practical.
+
+## Notes
+
+- Predictions use chronological pre-match features only.
+- No betting odds, player availability, or post-match ranking information is used.
+- Limitations and leakage controls are documented in [reports/methodology.md](reports/methodology.md) and [reports/model_card.md](reports/model_card.md).
 
 ## Documentation
 
