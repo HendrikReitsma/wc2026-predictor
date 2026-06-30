@@ -39,6 +39,35 @@ Knockout evaluation report: [reports/worldcup_2026_knockout_model_performance.md
 - Simulates the World Cup tournament with 10,000 Monte Carlo runs by default.
 - Evaluates completed group-stage and resolved knockout predictions, then updates this README.
 
+## Honest Findings
+
+Frozen World Cup backtests picked a boring winner: Elo plus a simple Poisson goal model was hard to beat. Extra ML, calibration, ensembles, rest-day features, and heavier recent-form machinery mostly added noise.
+
+| Model | Accuracy | LogLoss | Brier | RPS |
+| --- | ---: | ---: | ---: | ---: |
+| Elo baseline | 57.6% | 0.9686 | 0.5720 | n/a |
+| Poisson goal model | 58.4% | 0.9646 | 0.5679 | n/a |
+| ML challenger | 55.0% | 0.9809 | 0.5771 | n/a |
+| Selected goal model | 57.6% | 0.9631 | 0.5669 | 0.1998 |
+
+Live 2026 so far is better than the historical backtest, but still noisy:
+
+| Scope | Accuracy | LogLoss | Brier | RPS |
+| --- | ---: | ---: | ---: | ---: |
+| Group stage | 63.9% | 0.8776 | 0.5156 | 0.1532 |
+| Group + knockout scores | 63.2% | 0.885 | 0.521 | 0.153 |
+
+What moved the needle:
+
+- Elo is the main signal. Removing it was disastrous in ablations.
+- The attack/defence Poisson model helped slightly over plain Elo and gives expected goals, scorelines, totals, and simulations from one distribution.
+- Match-importance weighting helped a little. Time decay did not.
+- Calibration did not help this setup, so the selected model stayed uncalibrated.
+- Dixon-Coles low-score corrections did not improve W/D/L here; kept only as an experiment, not the selected setting.
+- Rounded expected goals worked surprisingly well for Scorito-style picks: 47/72 group outcomes, but worse probabilistically than the full distribution.
+
+Final deployed model: pre-match Elo + attack/defence Poisson + margin-class adjustment, trained only on information available before the cutoff. It is useful for transparent forecasting and simulation, not for out-pricing markets.
+
 ## Install
 
 Use Python 3.11 or newer.
