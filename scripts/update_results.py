@@ -570,19 +570,12 @@ def render_readme_metrics(
     outcome_correct = int(group_metrics["outcome_correct_count"]) + int(
         (knockout_metrics or {}).get("outcome_correct_count", 0)
     )
-    top1_hits = int(group_metrics["top1_score_hit_count"]) + int(
-        (knockout_metrics or {}).get("top1_score_hit_count", 0)
-    )
-    top5_hits = int(group_metrics["top5_score_hit_count"]) + int(
-        (knockout_metrics or {}).get("top5_score_hit_count", 0)
-    )
     expected_total_goals = float(group_metrics["expected_total_goals"]) + float(
         (knockout_metrics or {}).get("expected_total_goals", 0.0)
     )
     actual_total_goals = int(group_metrics["actual_total_goals"]) + int(
         (knockout_metrics or {}).get("actual_total_goals", 0)
     )
-    rounded_matches = group_matches
     rows = [
         f"_Last updated by `python scripts/update_results.py` at {generated_at}._",
         "",
@@ -590,44 +583,18 @@ def render_readme_metrics(
         "| --- | ---: |",
         f"| Matches evaluated | {matches} |",
         f"| Outcome accuracy | {_format_percent(outcome_correct / max(matches, 1))} |",
-        f"| Correct outcomes / total matches | {outcome_correct} / {matches} |",
+        f"| Ranked Probability Score | {_combined_metric(group_metrics, knockout_metrics, 'probability_rps'):.3f} |",
         f"| Log loss | {_combined_metric(group_metrics, knockout_metrics, 'outcome_log_loss'):.3f} |",
         f"| Brier score | {_combined_metric(group_metrics, knockout_metrics, 'outcome_brier_score'):.3f} |",
-        f"| Ranked Probability Score | {_combined_metric(group_metrics, knockout_metrics, 'probability_rps'):.3f} |",
         (
             "| Avg probability on actual result | "
             f"{_format_percent(_combined_metric(group_metrics, knockout_metrics, 'average_actual_outcome_probability'))} |"
         ),
         (
-            "| Exact score hit rate | "
-            f"{_format_percent(top1_hits / max(matches, 1))} "
-            f"({top1_hits} / {matches}) |"
-        ),
-        (
-            "| Top-5 scoreline hit rate | "
-            f"{_format_percent(top5_hits / max(matches, 1))} "
-            f"({top5_hits} / {matches}) |"
-        ),
-        (
             "| Total goals expected vs actual | "
             f"{expected_total_goals:.1f} vs {actual_total_goals} |"
         ),
-        (
-            "| Rounded-xG outcome accuracy | "
-            f"{_format_percent(float(group_metrics['rounded_outcome_accuracy']))} "
-            f"({int(group_metrics['rounded_outcome_correct_count'])} / {rounded_matches} group matches) |"
-        ),
     ]
-    if knockout_metrics and int(knockout_metrics.get("matches", 0)) > 0:
-        rows.extend(
-            [
-                (
-                    "| Knockout advance accuracy | "
-                    f"{_format_percent(float(knockout_metrics['advance_accuracy']))} "
-                    f"({int(knockout_metrics['advance_correct_count'])} / {knockout_matches}) |"
-                ),
-            ]
-        )
     return "\n".join(rows)
 
 

@@ -1,74 +1,49 @@
 # World Cup 2026 Predictor
 
-Reproducible pre-match forecasting for the FIFA World Cup 2026.
+Transparent FIFA World Cup 2026 forecasting with Elo ratings, Poisson expected goals, Monte Carlo simulation, and live evaluation as results come in.
 
-The project combines chronological team ratings, rolling team form, Poisson expected-goals models, a margin/outcome adjustment, and Monte Carlo tournament simulation. It is built for transparent experimentation, not betting guarantees.
+The group-stage forecast was frozen before the tournament. Completed matches are scored against the original probabilities; results are not retro-fitted.
 
-## Current Performance
-
-These metrics evaluate the frozen pre-tournament group-stage predictions plus any completed knockout matches that have resolved prediction rows.
+## Current Record
 
 <!-- wc2026-metrics:start -->
-_Last updated by `python scripts/update_results.py` at 2026-06-30 17:55 UTC._
+_Last updated by `python scripts/update_results.py` at 2026-06-30 18:26 UTC._
 
 | Metric | Current value |
 | --- | ---: |
 | Matches evaluated | 76 |
 | Outcome accuracy | 63.2% |
-| Correct outcomes / total matches | 48 / 76 |
+| Ranked Probability Score | 0.153 |
 | Log loss | 0.885 |
 | Brier score | 0.521 |
-| Ranked Probability Score | 0.153 |
 | Avg probability on actual result | 48.8% |
-| Exact score hit rate | 15.8% (12 / 76) |
-| Top-5 scoreline hit rate | 47.4% (36 / 76) |
 | Total goals expected vs actual | 212.5 vs 221 |
-| Rounded-xG outcome accuracy | 65.3% (47 / 72 group matches) |
-| Knockout advance accuracy | 50.0% (2 / 4) |
 <!-- wc2026-metrics:end -->
 
-Group evaluation report: [reports/worldcup_2026_group_stage_model_performance.md](reports/worldcup_2026_group_stage_model_performance.md)
+Latest remaining tournament forecast: [reports/worldcup_2026_remaining_prediction_report.md](reports/worldcup_2026_remaining_prediction_report.md)
 
-Knockout evaluation report: [reports/worldcup_2026_knockout_model_performance.md](reports/worldcup_2026_knockout_model_performance.md)
+Evaluation reports: [group stage](reports/worldcup_2026_group_stage_model_performance.md), [knockout](reports/worldcup_2026_knockout_model_performance.md)
 
-## What This Does
+## Why Trust This?
 
-- Builds leakage-safe pre-match features from international results.
-- Trains home/away goal models and outcome models.
-- Predicts match expected goals, W/D/L probabilities, scorelines, totals, and clean sheets.
-- Simulates the World Cup tournament with 10,000 Monte Carlo runs by default.
-- Evaluates completed group-stage and resolved knockout predictions, then updates this README.
+- Predictions use chronological pre-match features only.
+- No betting odds, player availability, or post-match ranking information is used.
+- Results are fetched and merged into fixed CSVs, then evaluated against saved prediction files.
+- The main refresh command is one script: `python scripts/update_results.py`.
 
 ## Honest Findings
 
-Frozen World Cup backtests picked a boring winner: Elo plus a simple Poisson goal model was hard to beat. Extra ML, calibration, ensembles, rest-day features, and heavier recent-form machinery mostly added noise.
+Simple rating/goal models were hard to beat. Extra ML, calibration, ensembles, rest-day features, and heavier recent-form machinery mostly added noise. The deployed model is:
 
-| Model | Accuracy | LogLoss | Brier | RPS |
-| --- | ---: | ---: | ---: | ---: |
-| Elo baseline | 57.6% | 0.9686 | 0.5720 | n/a |
-| Poisson goal model | 58.4% | 0.9646 | 0.5679 | n/a |
-| ML challenger | 55.0% | 0.9809 | 0.5771 | n/a |
-| Selected goal model | 57.6% | 0.9631 | 0.5669 | 0.1998 |
+```text
+pre-match Elo + attack/defence Poisson + margin-class adjustment
+```
 
-Live 2026 so far is better than the historical backtest, but still noisy:
+The Poisson layer is kept because it gives one coherent distribution for expected goals, scorelines, totals, clean sheets, and tournament simulation. Rounded expected goals worked reasonably well for Scorito-style score picks, but the full probability distribution is better for evaluation.
 
-| Scope | Accuracy | LogLoss | Brier | RPS |
-| --- | ---: | ---: | ---: | ---: |
-| Group stage | 63.9% | 0.8776 | 0.5156 | 0.1532 |
-| Group + knockout scores | 63.2% | 0.885 | 0.521 | 0.153 |
+More detail: [reports/evaluation.md](reports/evaluation.md)
 
-What moved the needle:
-
-- Elo is the main signal. Removing it was disastrous in ablations.
-- The attack/defence Poisson model helped slightly over plain Elo and gives expected goals, scorelines, totals, and simulations from one distribution.
-- Match-importance weighting helped a little. Time decay did not.
-- Calibration did not help this setup, so the selected model stayed uncalibrated.
-- Dixon-Coles low-score corrections did not improve W/D/L here; kept only as an experiment, not the selected setting.
-- Rounded expected goals worked surprisingly well for Scorito-style picks: 47/72 group outcomes, but worse probabilistically than the full distribution.
-
-Final deployed model: pre-match Elo + attack/defence Poisson + margin-class adjustment, trained only on information available before the cutoff. It is useful for transparent forecasting and simulation, not for out-pricing markets.
-
-## Install
+## Quickstart
 
 Use Python 3.11 or newer.
 
@@ -78,49 +53,7 @@ python -m venv .venv
 pip install -e .
 ```
 
-For a non-editable minimal install:
-
-```bash
-pip install -r requirements.txt
-```
-
-Optional extras:
-
-```bash
-pip install -e .[data]  # Kaggle download support
-pip install -e .[viz]   # report figures
-pip install -e .[dev]   # pytest
-```
-
-## Update After Matches
-
-After new World Cup results are available, run:
-
-```bash
-python scripts/update_results.py
-```
-
-That command:
-
-- fetches the published World Cup 2026 group-stage scores,
-- fetches available knockout scores from the configured knockout source pages,
-- merges group scores into `data/manual/worldcup_2026_group_results.csv` without duplicating matches,
-- merges knockout scores into `data/manual/worldcup_2026_knockout_results.csv` without duplicating matches,
-- resolves newly known knockout fixtures and writes prediction rows when the bracket can be resolved,
-- re-runs the group-stage and knockout evaluations,
-- rewrites `reports/worldcup_2026_group_stage_model_performance.md`,
-- rewrites `reports/worldcup_2026_knockout_model_performance.md`,
-- updates the metrics table in this README.
-
-If the source page is unavailable but the local results CSV is already current:
-
-```bash
-python scripts/update_results.py --skip-fetch
-```
-
-## Reproduce The Current Forecast
-
-Run commands from the repository root.
+Reproduce the current forecast and evaluation:
 
 ```bash
 python scripts/fetch_data.py
@@ -130,58 +63,42 @@ python scripts/update_results.py
 python -m pytest -q
 ```
 
-After the group stage, the remaining fixed knockout bracket can be simulated with actual group results locked in:
+## Update After Matches
+
+After new World Cup results are available:
 
 ```bash
-python scripts/train_models.py --cutoff-date 2026-06-27
-python scripts/predict_remaining_worldcup_2026.py --cutoff-date 2026-06-27 --n-simulations 10000
+python scripts/update_results.py
 ```
 
-## Important Files And Folders
+The command fetches available results, avoids duplicate match rows, re-runs evaluation, updates reports, and rewrites the metrics table in this README.
+
+If the result source is unavailable but local result CSVs are current:
+
+```bash
+python scripts/update_results.py --skip-fetch
+```
+
+## Repository Layout
 
 | Path | Purpose |
 | --- | --- |
-| `config/config.yaml` | Main configuration and default simulation settings. |
-| `data/manual/` | Small checked-in manual inputs: fixtures, mappings, group results, allocation table sources. |
-| `data/raw/` | Raw downloaded historical results. Ignored because it is reproducible/large. |
-| `data/processed/` | Generated feature tables and intermediate outputs. Ignored. |
-| `data/predictions/` | Generated predictions and metric files. Mostly ignored except the small current metrics JSON. |
-| `models/` | Generated model artifacts. Ignored. |
+| `config/` | Main configuration. |
+| `data/manual/` | Small checked-in inputs: fixtures, mappings, completed World Cup results. |
 | `scripts/` | Runnable workflow entry points. |
-| `src/` | Model, feature, simulation, and evaluation logic. |
-| `reports/` | Public-facing reports and figures. |
-| `archive/` | Old exploratory work kept for reference. |
+| `src/` | Feature, model, simulation, and evaluation logic. |
+| `reports/` | Public reports and figures. |
+| `tests/` | Regression and parser tests. |
 
-## Main Metrics
+Generated raw data, processed features, predictions, and model artifacts are ignored by Git where practical.
 
-- **Outcome accuracy**: share of matches where the highest-probability W/D/L outcome was correct.
-- **Log loss**: rewards probability assigned to the actual result; lower is better and confident wrong calls are punished strongly.
-- **Brier score**: squared error over the three outcome probabilities; lower is better.
-- **RPS**: Ranked Probability Score for ordered outcomes home/draw/away; lower is better.
-- **Average probability on actual result**: mean probability the model assigned to what actually happened.
-- **Exact score hit rate**: share of matches where the single most likely score was exactly right.
-- **Top-5 scoreline hit rate**: share where the actual score was among the model's five most likely scorelines.
-- **Rounded-xG outcome accuracy**: evaluates a Scorito-style entered score created by rounding expected home and away goals.
-- **Knockout advance accuracy**: share of completed knockout matches where the predicted advancer was correct.
+## Documentation
 
-## Project Notes
+- [Methodology](reports/methodology_research_paper.md)
+- [Model card](reports/model_card.md)
+- [Public GitHub comparison](reports/github_method_comparison.md)
+- [Remaining tournament forecast](reports/worldcup_2026_remaining_prediction_report.md)
 
-- The main forecast snapshot uses a cutoff of `2026-06-10`, before the World Cup group stage.
-- The model does not use betting odds, player availability, or post-match ranking information.
-- All rolling features and ratings are computed chronologically before each match is used to update state.
-- Extreme scores are retained as observations; only goal-model training targets are capped for robustness.
-- A 72-match group stage is still a small sample, so close metric differences should not be overinterpreted.
+## License
 
-## TODOs
-
-- Add official-source fallback parsers for later knockout rounds if SB Nation changes its article URLs or page format.
-- Add a small public sample dataset if you want the repo to run fully without downloading `data/raw/results.csv`.
-
-## More Detail
-
-- Method paper: [reports/methodology_research_paper.md](reports/methodology_research_paper.md)
-- Model card: [reports/model_card.md](reports/model_card.md)
-- Remaining tournament report: [reports/worldcup_2026_remaining_prediction_report.md](reports/worldcup_2026_remaining_prediction_report.md)
-- Knockout evaluation report: [reports/worldcup_2026_knockout_model_performance.md](reports/worldcup_2026_knockout_model_performance.md)
-- Public GitHub comparison: [reports/github_method_comparison.md](reports/github_method_comparison.md)
-
+MIT
