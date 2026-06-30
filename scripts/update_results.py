@@ -540,63 +540,91 @@ def _format_percent(value: float) -> str:
     return f"{value:.1%}"
 
 
+def _combined_metric(
+    group_metrics: dict[str, object],
+    knockout_metrics: dict[str, object] | None,
+    key: str,
+) -> float:
+    group_matches = int(group_metrics["matches"])
+    knockout_matches = int((knockout_metrics or {}).get("matches", 0))
+    total_matches = group_matches + knockout_matches
+    if total_matches == 0:
+        return 0.0
+    group_total = float(group_metrics[key]) * group_matches
+    knockout_total = (
+        float(knockout_metrics[key]) * knockout_matches
+        if knockout_metrics and knockout_matches > 0 and key in knockout_metrics
+        else 0.0
+    )
+    return (group_total + knockout_total) / total_matches
+
+
 def render_readme_metrics(
     group_metrics: dict[str, object],
     knockout_metrics: dict[str, object] | None = None,
 ) -> str:
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    matches = int(group_metrics["matches"])
+    group_matches = int(group_metrics["matches"])
+    knockout_matches = int((knockout_metrics or {}).get("matches", 0))
+    matches = group_matches + knockout_matches
+    outcome_correct = int(group_metrics["outcome_correct_count"]) + int(
+        (knockout_metrics or {}).get("outcome_correct_count", 0)
+    )
+    top1_hits = int(group_metrics["top1_score_hit_count"]) + int(
+        (knockout_metrics or {}).get("top1_score_hit_count", 0)
+    )
+    top5_hits = int(group_metrics["top5_score_hit_count"]) + int(
+        (knockout_metrics or {}).get("top5_score_hit_count", 0)
+    )
+    expected_total_goals = float(group_metrics["expected_total_goals"]) + float(
+        (knockout_metrics or {}).get("expected_total_goals", 0.0)
+    )
+    actual_total_goals = int(group_metrics["actual_total_goals"]) + int(
+        (knockout_metrics or {}).get("actual_total_goals", 0)
+    )
+    rounded_matches = group_matches
     rows = [
         f"_Last updated by `python scripts/update_results.py` at {generated_at}._",
         "",
         "| Metric | Current value |",
         "| --- | ---: |",
-        f"| Group outcome accuracy | {_format_percent(float(group_metrics['outcome_accuracy']))} |",
-        f"| Group correct outcomes / total matches | {int(group_metrics['outcome_correct_count'])} / {matches} |",
-        f"| Group log loss | {float(group_metrics['outcome_log_loss']):.3f} |",
-        f"| Group Brier score | {float(group_metrics['outcome_brier_score']):.3f} |",
-        f"| Group Ranked Probability Score | {float(group_metrics['probability_rps']):.3f} |",
-        f"| Group avg probability on actual result | {_format_percent(float(group_metrics['average_actual_outcome_probability']))} |",
+        f"| Matches evaluated | {matches} |",
+        f"| Outcome accuracy | {_format_percent(outcome_correct / max(matches, 1))} |",
+        f"| Correct outcomes / total matches | {outcome_correct} / {matches} |",
+        f"| Log loss | {_combined_metric(group_metrics, knockout_metrics, 'outcome_log_loss'):.3f} |",
+        f"| Brier score | {_combined_metric(group_metrics, knockout_metrics, 'outcome_brier_score'):.3f} |",
+        f"| Ranked Probability Score | {_combined_metric(group_metrics, knockout_metrics, 'probability_rps'):.3f} |",
         (
-            "| Group exact score hit rate | "
-            f"{_format_percent(float(group_metrics['top1_score_accuracy']))} "
-            f"({int(group_metrics['top1_score_hit_count'])} / {matches}) |"
+            "| Avg probability on actual result | "
+            f"{_format_percent(_combined_metric(group_metrics, knockout_metrics, 'average_actual_outcome_probability'))} |"
         ),
         (
-            "| Group top-5 scoreline hit rate | "
-            f"{_format_percent(float(group_metrics['top5_score_hit_rate']))} "
-            f"({int(group_metrics['top5_score_hit_count'])} / {matches}) |"
+            "| Exact score hit rate | "
+            f"{_format_percent(top1_hits / max(matches, 1))} "
+            f"({top1_hits} / {matches}) |"
         ),
         (
-            "| Group total goals expected vs actual | "
-            f"{float(group_metrics['expected_total_goals']):.1f} vs {int(group_metrics['actual_total_goals'])} |"
+            "| Top-5 scoreline hit rate | "
+            f"{_format_percent(top5_hits / max(matches, 1))} "
+            f"({top5_hits} / {matches}) |"
         ),
         (
-            "| Rounded-xG group outcome accuracy | "
+            "| Total goals expected vs actual | "
+            f"{expected_total_goals:.1f} vs {actual_total_goals} |"
+        ),
+        (
+            "| Rounded-xG outcome accuracy | "
             f"{_format_percent(float(group_metrics['rounded_outcome_accuracy']))} "
-            f"({int(group_metrics['rounded_outcome_correct_count'])} / {matches}) |"
+            f"({int(group_metrics['rounded_outcome_correct_count'])} / {rounded_matches} group matches) |"
         ),
     ]
     if knockout_metrics and int(knockout_metrics.get("matches", 0)) > 0:
-        knockout_matches = int(knockout_metrics["matches"])
         rows.extend(
             [
-                f"| Knockout matches evaluated | {knockout_matches} |",
                 (
                     "| Knockout advance accuracy | "
                     f"{_format_percent(float(knockout_metrics['advance_accuracy']))} "
                     f"({int(knockout_metrics['advance_correct_count'])} / {knockout_matches}) |"
-                ),
-                (
-                    "| Knockout score-outcome accuracy | "
-                    f"{_format_percent(float(knockout_metrics['outcome_accuracy']))} "
-                    f"({int(knockout_metrics['outcome_correct_count'])} / {knockout_matches}) |"
-                ),
-                f"| Knockout RPS | {float(knockout_metrics['probability_rps']):.3f} |",
-                (
-                    "| Knockout total goals expected vs actual | "
-                    f"{float(knockout_metrics['expected_total_goals']):.1f} "
-                    f"vs {int(knockout_metrics['actual_total_goals'])} |"
                 ),
             ]
         )

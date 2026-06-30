@@ -9,25 +9,22 @@ The project combines chronological team ratings, rolling team form, Poisson expe
 These metrics evaluate the frozen pre-tournament group-stage predictions plus any completed knockout matches that have resolved prediction rows.
 
 <!-- wc2026-metrics:start -->
-_Last updated by `python scripts/update_results.py` at 2026-06-30 17:43 UTC._
+_Last updated by `python scripts/update_results.py` at 2026-06-30 17:55 UTC._
 
 | Metric | Current value |
 | --- | ---: |
-| Group outcome accuracy | 63.9% |
-| Group correct outcomes / total matches | 46 / 72 |
-| Group log loss | 0.878 |
-| Group Brier score | 0.516 |
-| Group Ranked Probability Score | 0.153 |
-| Group avg probability on actual result | 49.4% |
-| Group exact score hit rate | 12.5% (9 / 72) |
-| Group top-5 scoreline hit rate | 44.4% (32 / 72) |
-| Group total goals expected vs actual | 202.3 vs 213 |
-| Rounded-xG group outcome accuracy | 65.3% (47 / 72) |
-| Knockout matches evaluated | 4 |
+| Matches evaluated | 76 |
+| Outcome accuracy | 63.2% |
+| Correct outcomes / total matches | 48 / 76 |
+| Log loss | 0.885 |
+| Brier score | 0.521 |
+| Ranked Probability Score | 0.153 |
+| Avg probability on actual result | 48.8% |
+| Exact score hit rate | 15.8% (12 / 76) |
+| Top-5 scoreline hit rate | 47.4% (36 / 76) |
+| Total goals expected vs actual | 212.5 vs 221 |
+| Rounded-xG outcome accuracy | 65.3% (47 / 72 group matches) |
 | Knockout advance accuracy | 50.0% (2 / 4) |
-| Knockout score-outcome accuracy | 50.0% (2 / 4) |
-| Knockout RPS | 0.153 |
-| Knockout total goals expected vs actual | 10.2 vs 8 |
 <!-- wc2026-metrics:end -->
 
 Group evaluation report: [reports/worldcup_2026_group_stage_model_performance.md](reports/worldcup_2026_group_stage_model_performance.md)
