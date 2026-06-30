@@ -1,13 +1,13 @@
 # Knockout Model Performance
 
-- Evaluated knockout matches: **4**.
-- Advance accuracy: **50.0%** (2 / 4).
-- Match-score outcome accuracy: **50.0%** (2 / 4).
-- Outcome RPS: **0.153**.
-- Outcome log loss: **1.025**.
-- Exact-score hit rate: **75.0%** (3 / 4).
-- Top-5 scoreline hit rate: **100.0%** (4 / 4).
-- Total goals: expected **10.2**, actual **8**.
+- Evaluated knockout matches: **5**.
+- Advance accuracy: **60.0%** (3 / 5).
+- Match-score outcome accuracy: **60.0%** (3 / 5).
+- Outcome RPS: **0.163**.
+- Outcome log loss: **0.982**.
+- Exact-score hit rate: **60.0%** (3 / 5).
+- Top-5 scoreline hit rate: **100.0%** (5 / 5).
+- Total goals: expected **13.0**, actual **11**.
 - Penalty decisions: **2**.
 
 ## Match Details
@@ -18,5 +18,6 @@
 | 76 | Round of 32 | Brazil | Japan | 2-1 | Brazil | score | Brazil | True | 0.635 | 0.365 | home | home | 0.177 |
 | 74 | Round of 32 | Germany | Paraguay | 1-1 | Paraguay | penalties | Germany | False | 0.656 | 0.344 | draw | home | 0.159 |
 | 75 | Round of 32 | Netherlands | Morocco | 1-1 | Morocco | penalties | Netherlands | False | 0.532 | 0.468 | draw | home | 0.130 |
+| 78 | Round of 32 | Ivory Coast | Norway | 1-2 | Norway | score | Norway | True | 0.428 | 0.572 | away | away | 0.206 |
 
 Note: knockout score outcomes use the published score before penalties. Advancement accuracy uses the published advancing team.
