@@ -1,0 +1,67 @@
+# Python caches and test output
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Python packaging/build artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Notebook/editor noise
+.ipynb_checkpoints/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+config/local*.yaml
+config/secrets*.yaml
+kaggle.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Reproducible or generated data
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/predictions/*
+!data/predictions/.gitkeep
+!data/predictions/group_stage_prediction_evaluation_metrics.json
+data/manual/results.csv
+
+# Trained artifacts are reproducible and can be large
+models/*
+!models/.gitkeep
+
+# Keep final reports tracked, but ignore scratch report output
+reports/generated/
+reports/tmp/
+reports/figures/tmp*/
+reports/figures/*.tmp
+reports/figures/*.tmp.*
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.orig

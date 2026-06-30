@@ -1,0 +1,11 @@
+{
+  "cutoff_date": "2026-06-10",
+  "training_rows": 32281,
+  "figures": [
+    "paper_feature_distributions.png",
+    "paper_feature_correlation.png",
+    "paper_match_importance_weights.png",
+    "paper_expected_vs_modal_goals.png",
+    "paper_spain_cape_verde_score_matrix.png"
+  ]
+}

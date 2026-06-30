@@ -1,0 +1,114 @@
+project:
+  name: wc2026-predictor
+  cutoff_date: "2026-06-10"
+  random_seed: 42
+
+data:
+  kaggle_dataset_slug: "martj42/international-football-results-from-1872-to-2017"
+  raw_results_filename: "results.csv"
+  fixtures_filename: "worldcup_2026_fixtures.csv"
+  team_mappings_filename: "team_name_mappings.csv"
+  results_metadata_filename: "results_metadata.json"
+
+paths:
+  raw: "data/raw"
+  processed: "data/processed"
+  manual: "data/manual"
+  predictions: "data/predictions"
+  models: "models"
+
+modeling:
+  validation_years: 4
+  minimum_training_year: 1990
+  minimum_training_year_candidates: [1990, 1998, 2002, 2010]
+  time_decay_half_life_years: 8
+  time_decay_candidates: [4, 8, 12]
+  use_match_importance_weights: true
+  match_type_weights:
+    friendly: 0.50
+    minor_competitive: 1.20
+    qualifier: 1.80
+    continental_group: 2.50
+    continental_knockout: 3.00
+    world_cup_group: 3.50
+    world_cup_knockout: 4.00
+    continental: 2.75
+    world_cup: 3.75
+    default: 1.00
+  match_weight_profiles:
+    balanced:
+      friendly: 0.75
+      minor_competitive: 1.00
+      qualifier: 1.30
+      continental_group: 1.70
+      continental_knockout: 2.00
+      world_cup_group: 2.30
+      world_cup_knockout: 2.60
+      continental: 1.85
+      world_cup: 2.45
+      default: 1.00
+    aggressive:
+      friendly: 0.50
+      minor_competitive: 1.20
+      qualifier: 1.80
+      continental_group: 2.50
+      continental_knockout: 3.00
+      world_cup_group: 3.50
+      world_cup_knockout: 4.00
+      continental: 2.75
+      world_cup: 3.75
+      default: 1.00
+  goal_cap: 8
+  model_type: "best_backtest"
+  calibration_method: "multinomial_logit"
+  max_goals: 10
+  dixon_coles_rho_candidates: [0.0, -0.05, -0.10]
+  outcome_weight_poisson: 0.50
+  outcome_weight_ml: 0.50
+
+elo:
+  base_rating: 1500.0
+  home_advantage: 65.0
+  friendly_k: 20.0
+  qualifier_k: 25.0
+  continental_k: 30.0
+  world_cup_k: 40.0
+  default_k: 25.0
+
+simulation:
+  default_n_simulations: 10000
+  max_n_simulations: 100000
+  extra_time_goal_scale: 0.35
+  penalty_home_advantage: 0.05
+
+target_experiments:
+  goal_cap: 6
+  goal_difference_cap: 4
+  calibration_years: 2
+
+training_strategy:
+  minimum_year_candidates: [1990, 1998, 2002, 2010]
+  time_decay_candidates: [none, 4, 8, 12]
+  importance_profiles: [none, balanced, aggressive]
+  goal_cap_candidates: [6, 8, 10]
+  elo_k_scale_candidates: [0.8, 1.0, 1.2]
+  rating_models: [standard_elo, smoothed_dynamic]
+  draw_correction_methods: [none, global, similar_strength]
+  calibration_methods: [uncalibrated, sigmoid, isotonic]
+  similar_strength_elo_threshold: 100
+  draw_similarity_scale: 180
+  calibration_years: 2
+
+indirect_models:
+  use_team_strength_trend: true
+  use_tournament_readiness: true
+  trend_target: future_elo_delta_next_5_matches
+  trend_target_candidates: [future_elo_delta_next_5_matches]
+  readiness_target: tournament_performance_above_elo_expectation
+  readiness_target_candidates: [tournament_performance_above_elo_expectation]
+  calibration_methods: [uncalibrated]
+  trend_adjustment_weight: 0.5
+  readiness_adjustment_weight: 0.5
+  readiness_elo_points_per_goal: 35.0
+  max_total_strength_adjustment_elo_points: 75
+  minimum_log_loss_improvement: 0.0005

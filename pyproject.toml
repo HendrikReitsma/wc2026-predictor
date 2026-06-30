@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wc2026-predictor"
+version = "0.1.0"
+description = "Reproducible FIFA World Cup 2026 prediction pipeline"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "numpy>=1.26",
+  "pandas>=2.2",
+  "scipy>=1.11",
+  "scikit-learn>=1.5",
+  "statsmodels>=0.14",
+  "joblib>=1.4",
+  "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+ml = ["lightgbm>=4.5", "xgboost>=2.1"]
+data = ["kaggle>=1.7"]
+dev = ["pytest>=8.0"]
+viz = ["matplotlib>=3.8", "seaborn>=0.13"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src", "src.*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
