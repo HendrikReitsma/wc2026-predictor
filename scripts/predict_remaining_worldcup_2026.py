@@ -10,7 +10,7 @@ import pandas as pd
 
 from src.simulation.simulate_remaining_tournament import simulate_remaining_tournament
 from src.utils.config import config_value
-from src.utils.paths import MANUAL_DATA_DIR, PREDICTIONS_DIR, REPORTS_DIR
+from src.utils.paths import INTERNAL_DOCS_DIR, MANUAL_DATA_DIR, PREDICTIONS_DIR
 
 
 SOURCE_RESULTS_URL = "https://www.sbnation.com/soccer/1117513/world-cup-schedule-2026-how-to-watch-every-match-scores-and-more"
@@ -145,7 +145,8 @@ def create_remaining_report(cutoff_date: str, n_simulations: int) -> None:
             ],
         ),
     ]
-    (REPORTS_DIR / "worldcup_2026_remaining_prediction_report.md").write_text(
+    INTERNAL_DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    (INTERNAL_DOCS_DIR / "worldcup_2026_remaining_prediction_report.md").write_text(
         "\n".join(lines),
         encoding="utf-8",
     )

@@ -5,7 +5,7 @@ import json
 import numpy as np
 import pandas as pd
 
-from src.utils.paths import MODELS_DIR, PREDICTIONS_DIR, PROCESSED_DATA_DIR, REPORTS_DIR
+from src.utils.paths import INTERNAL_DOCS_DIR, MODELS_DIR, PREDICTIONS_DIR, PROCESSED_DATA_DIR
 
 
 def _table(frame: pd.DataFrame, columns: list[str]) -> str:
@@ -160,4 +160,5 @@ def create_indirect_model_report() -> None:
         "",
         "These are probabilistic comparisons, not certainties.",
     ]
-    (REPORTS_DIR / "indirect_model_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    INTERNAL_DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    (INTERNAL_DOCS_DIR / "indirect_model_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")

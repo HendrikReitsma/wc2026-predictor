@@ -27,7 +27,7 @@ from src.models.predict_match import predict_match
 from src.simulation.simulate_knockout import _resolve_slot
 from src.simulation.simulate_remaining_tournament import build_actual_slot_mapping
 from src.simulation.simulate_tournament import _stage_key
-from src.utils.paths import MANUAL_DATA_DIR, PREDICTIONS_DIR, PROJECT_ROOT, REPORTS_DIR
+from src.utils.paths import INTERNAL_DOCS_DIR, MANUAL_DATA_DIR, PREDICTIONS_DIR, PROJECT_ROOT, REPORTS_DIR
 
 
 README_METRICS_START = "<!-- wc2026-metrics:start -->"
@@ -43,7 +43,8 @@ KNOCKOUT_RESULTS_PATH = MANUAL_DATA_DIR / "worldcup_2026_knockout_results.csv"
 KNOCKOUT_PREDICTIONS_PATH = PREDICTIONS_DIR / "knockout_match_predictions_2026.csv"
 KNOCKOUT_EVALUATION_PATH = PREDICTIONS_DIR / "knockout_prediction_evaluation.csv"
 KNOCKOUT_METRICS_PATH = PREDICTIONS_DIR / "knockout_prediction_evaluation_metrics.json"
-KNOCKOUT_REPORT_PATH = REPORTS_DIR / "worldcup_2026_knockout_model_performance.md"
+KNOCKOUT_REPORT_PATH = INTERNAL_DOCS_DIR / "worldcup_2026_knockout_model_performance.md"
+CURRENT_PERFORMANCE_REPORT_PATH = REPORTS_DIR / "current_performance.md"
 
 KNOCKOUT_RESULT_COLUMNS = [
     *OUTPUT_COLUMNS,
@@ -390,6 +391,7 @@ def save_knockout_predictions(predictions: pd.DataFrame) -> pd.DataFrame:
 
 
 def create_knockout_report() -> dict[str, Any]:
+    KNOCKOUT_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     if not KNOCKOUT_RESULTS_PATH.exists() or not KNOCKOUT_PREDICTIONS_PATH.exists():
         metrics = {"matches": 0}
         KNOCKOUT_METRICS_PATH.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
@@ -576,6 +578,12 @@ def render_readme_metrics(
     actual_total_goals = int(group_metrics["actual_total_goals"]) + int(
         (knockout_metrics or {}).get("actual_total_goals", 0)
     )
+    top1_hits = int(group_metrics.get("top1_score_hit_count", 0)) + int(
+        (knockout_metrics or {}).get("top1_score_hit_count", 0)
+    )
+    top5_hits = int(group_metrics.get("top5_score_hit_count", 0)) + int(
+        (knockout_metrics or {}).get("top5_score_hit_count", 0)
+    )
     rows = [
         f"_Last updated by `python scripts/update_results.py` at {generated_at}._",
         "",
@@ -583,6 +591,7 @@ def render_readme_metrics(
         "| --- | ---: |",
         f"| Matches evaluated | {matches} |",
         f"| Outcome accuracy | {_format_percent(outcome_correct / max(matches, 1))} |",
+        f"| Correct outcomes / total | {outcome_correct} / {matches} |",
         f"| Ranked Probability Score | {_combined_metric(group_metrics, knockout_metrics, 'probability_rps'):.3f} |",
         f"| Log loss | {_combined_metric(group_metrics, knockout_metrics, 'outcome_log_loss'):.3f} |",
         f"| Brier score | {_combined_metric(group_metrics, knockout_metrics, 'outcome_brier_score'):.3f} |",
@@ -590,12 +599,48 @@ def render_readme_metrics(
             "| Avg probability on actual result | "
             f"{_format_percent(_combined_metric(group_metrics, knockout_metrics, 'average_actual_outcome_probability'))} |"
         ),
+        f"| Exact score hit rate | {_format_percent(top1_hits / max(matches, 1))} |",
+        f"| Top-5 scoreline hit rate | {_format_percent(top5_hits / max(matches, 1))} |",
         (
             "| Total goals expected vs actual | "
             f"{expected_total_goals:.1f} vs {actual_total_goals} |"
         ),
     ]
     return "\n".join(rows)
+
+
+def create_current_performance_report(
+    group_metrics: dict[str, object],
+    knockout_metrics: dict[str, object] | None = None,
+) -> None:
+    group_matches = int(group_metrics["matches"])
+    knockout_matches = int((knockout_metrics or {}).get("matches", 0))
+    total_matches = group_matches + knockout_matches
+    knockout_note = (
+        f"- Knockout matches evaluated: **{knockout_matches}**."
+        if knockout_matches
+        else "- Knockout matches evaluated: **0**; the file is ready for completed knockout results."
+    )
+    lines = [
+        "# Current Performance",
+        "",
+        "This is the compact public performance report. Detailed generated audits stay in `docs/internal/` so the public `reports/` folder remains readable.",
+        "",
+        "## Total Metrics",
+        "",
+        render_readme_metrics(group_metrics, knockout_metrics),
+        "",
+        "## Scope",
+        "",
+        f"- Total evaluated matches: **{total_matches}**.",
+        f"- Group-stage matches evaluated: **{group_matches}**.",
+        knockout_note,
+        "- Group-stage detail: [`docs/internal/worldcup_2026_group_stage_model_performance.md`](../docs/internal/worldcup_2026_group_stage_model_performance.md).",
+        "- Knockout detail: [`docs/internal/worldcup_2026_knockout_model_performance.md`](../docs/internal/worldcup_2026_knockout_model_performance.md).",
+        "- Remaining-tournament forecast: [`docs/internal/worldcup_2026_remaining_prediction_report.md`](../docs/internal/worldcup_2026_remaining_prediction_report.md).",
+    ]
+    CURRENT_PERFORMANCE_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    CURRENT_PERFORMANCE_REPORT_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def update_readme_metrics(
@@ -653,6 +698,7 @@ def run_update(
 
     group_metrics = create_report()
     knockout_metrics = create_knockout_report()
+    create_current_performance_report(group_metrics, knockout_metrics)
     if update_readme:
         update_readme_metrics(group_metrics, knockout_metrics)
         print("Updated README metrics block.")

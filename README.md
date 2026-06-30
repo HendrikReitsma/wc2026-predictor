@@ -7,22 +7,23 @@ The group-stage forecast was frozen before the tournament. Completed matches are
 ## Current Record
 
 <!-- wc2026-metrics:start -->
-_Last updated by `python scripts/update_results.py` at 2026-06-30 18:26 UTC._
+_Last updated by `python scripts/update_results.py` at 2026-06-30 18:35 UTC._
 
 | Metric | Current value |
 | --- | ---: |
 | Matches evaluated | 76 |
 | Outcome accuracy | 63.2% |
+| Correct outcomes / total | 48 / 76 |
 | Ranked Probability Score | 0.153 |
 | Log loss | 0.885 |
 | Brier score | 0.521 |
 | Avg probability on actual result | 48.8% |
+| Exact score hit rate | 15.8% |
+| Top-5 scoreline hit rate | 47.4% |
 | Total goals expected vs actual | 212.5 vs 221 |
 <!-- wc2026-metrics:end -->
 
-Latest remaining tournament forecast: [reports/worldcup_2026_remaining_prediction_report.md](reports/worldcup_2026_remaining_prediction_report.md)
-
-Evaluation reports: [group stage](reports/worldcup_2026_group_stage_model_performance.md), [knockout](reports/worldcup_2026_knockout_model_performance.md)
+Current public performance report: [reports/current_performance.md](reports/current_performance.md)
 
 ## Why Trust This?
 
@@ -41,7 +42,7 @@ pre-match Elo + attack/defence Poisson + margin-class adjustment
 
 The Poisson layer is kept because it gives one coherent distribution for expected goals, scorelines, totals, clean sheets, and tournament simulation. Rounded expected goals worked reasonably well for Scorito-style score picks, but the full probability distribution is better for evaluation.
 
-More detail: [reports/evaluation.md](reports/evaluation.md)
+More detail: [reports/methodology.md](reports/methodology.md) and [reports/benchmark_comparison.md](reports/benchmark_comparison.md)
 
 ## Quickstart
 
@@ -87,17 +88,18 @@ python scripts/update_results.py --skip-fetch
 | `data/manual/` | Small checked-in inputs: fixtures, mappings, completed World Cup results. |
 | `scripts/` | Runnable workflow entry points. |
 | `src/` | Feature, model, simulation, and evaluation logic. |
-| `reports/` | Public reports and figures. |
+| `reports/` | Public reports and referenced methodology figures. |
+| `docs/internal/` | Generated deep-dive reports, audits, and historical comparisons. |
 | `tests/` | Regression and parser tests. |
 
 Generated raw data, processed features, predictions, and model artifacts are ignored by Git where practical.
 
 ## Documentation
 
-- [Methodology](reports/methodology_research_paper.md)
+- [Current performance](reports/current_performance.md)
+- [Methodology](reports/methodology.md)
 - [Model card](reports/model_card.md)
-- [Public GitHub comparison](reports/github_method_comparison.md)
-- [Remaining tournament forecast](reports/worldcup_2026_remaining_prediction_report.md)
+- [Public GitHub comparison](reports/benchmark_comparison.md)
 
 ## License
 

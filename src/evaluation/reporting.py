@@ -14,7 +14,14 @@ from src.models.train_goal_model import (
 )
 from src.models.train_outcome_model import OPPONENT_ADJUSTED_FEATURES, RAW_FORM_FEATURES
 from src.utils.config import config_value
-from src.utils.paths import MANUAL_DATA_DIR, MODELS_DIR, PREDICTIONS_DIR, PROCESSED_DATA_DIR, REPORTS_DIR
+from src.utils.paths import (
+    INTERNAL_DOCS_DIR,
+    MANUAL_DATA_DIR,
+    MODELS_DIR,
+    PREDICTIONS_DIR,
+    PROCESSED_DATA_DIR,
+    REPORTS_DIR,
+)
 from src.evaluation.indirect_reporting import create_indirect_model_report
 
 
@@ -67,7 +74,8 @@ def audit_worldcup_2026_fixtures(known_teams: set[str]) -> dict[str, object]:
         "unparseable_dates": int(pd.to_datetime(fixtures["match_date"], errors="coerce").isna().sum()),
         "suspicious_host_neutral_flags": int(len(suspicious_host_neutral)),
     }
-    (REPORTS_DIR / "fixture_audit.json").write_text(json.dumps(audit, indent=2), encoding="utf-8")
+    INTERNAL_DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    (INTERNAL_DOCS_DIR / "fixture_audit.json").write_text(json.dumps(audit, indent=2), encoding="utf-8")
     return audit
 
 
@@ -165,7 +173,8 @@ def create_prediction_summary(cutoff_date: str, n_simulations: int | None = None
         "- No player availability, injuries, betting odds, or squad-strength inputs are used.",
         "- Monte Carlo probabilities have sampling error and are not claims of certainty.",
     ]
-    (REPORTS_DIR / "worldcup_2026_prediction_summary.md").write_text("\n".join(lines), encoding="utf-8")
+    INTERNAL_DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    (INTERNAL_DOCS_DIR / "worldcup_2026_prediction_summary.md").write_text("\n".join(lines), encoding="utf-8")
     create_csv_summaries(simulation, matches)
     create_prediction_report(cutoff_date, n_simulations, simulation, matches, selection, fixture_audit)
     create_model_card(cutoff_date, selection)
@@ -480,7 +489,8 @@ def create_prediction_report(
         "",
         "These are probabilistic estimates, not certainties.",
     ]
-    (REPORTS_DIR / "worldcup_2026_prediction_report.md").write_text("\n".join(lines), encoding="utf-8")
+    INTERNAL_DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    (INTERNAL_DOCS_DIR / "worldcup_2026_prediction_report.md").write_text("\n".join(lines), encoding="utf-8")
 
 
 def create_model_card(cutoff_date: str, selection: dict[str, object]) -> None:
@@ -567,7 +577,7 @@ def create_figures(simulation: pd.DataFrame, matches: pd.DataFrame) -> None:
         import matplotlib.pyplot as plt
     except ImportError:
         return
-    figures_dir = REPORTS_DIR / "figures"
+    figures_dir = INTERNAL_DOCS_DIR / "figures"
     figures_dir.mkdir(parents=True, exist_ok=True)
 
     def save_bar(frame: pd.DataFrame, x: str, y: str, title: str, filename: str) -> None:

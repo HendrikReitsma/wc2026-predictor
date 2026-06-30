@@ -26,7 +26,7 @@ from src.models.train_team_strength_trend_model import train_team_strength_trend
 from src.models.train_tournament_readiness_model import train_tournament_readiness_model
 from src.utils.config import config_value
 from src.utils.logging import setup_logging
-from src.utils.paths import MODELS_DIR, PREDICTIONS_DIR, PROCESSED_DATA_DIR, REPORTS_DIR, ensure_project_dirs
+from src.utils.paths import MODELS_DIR, PREDICTIONS_DIR, PROCESSED_DATA_DIR, ensure_project_dirs
 
 
 LOGGER = setup_logging(__name__)

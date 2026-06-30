@@ -26,7 +26,7 @@ from src.models.train_outcome_model import (
 )
 from src.utils.config import config_value
 from src.utils.logging import setup_logging
-from src.utils.paths import MODELS_DIR, PREDICTIONS_DIR, PROCESSED_DATA_DIR, REPORTS_DIR, ensure_project_dirs
+from src.utils.paths import INTERNAL_DOCS_DIR, MODELS_DIR, PREDICTIONS_DIR, PROCESSED_DATA_DIR, ensure_project_dirs
 
 
 LOGGER = setup_logging(__name__)
@@ -526,7 +526,8 @@ def _write_report(
         "- Detailed feature-group ablations use the classifier challenger; the selected Poisson model is assessed as a complete family with its fixed goal-feature set.",
         "- No FIFA ranking, squad, player availability, injury, or betting-odds inputs are used.",
     ]
-    (REPORTS_DIR / "evaluation.md").write_text("\n".join(lines), encoding="utf-8")
+    INTERNAL_DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    (INTERNAL_DOCS_DIR / "evaluation.md").write_text("\n".join(lines), encoding="utf-8")
 
 
 def backtest_world_cups() -> pd.DataFrame:

@@ -9,7 +9,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from src.utils.paths import MANUAL_DATA_DIR, PREDICTIONS_DIR, REPORTS_DIR
+from src.utils.paths import INTERNAL_DOCS_DIR, MANUAL_DATA_DIR, PREDICTIONS_DIR
 
 
 def _markdown_table(frame: pd.DataFrame, precision: int = 3) -> str:
@@ -383,7 +383,8 @@ def create_report() -> dict[str, Any]:
         "",
         "The tradeoff is exact scores. The model's modal score hit 9 exact results, while rounded expected goals hit 6. The expected-goals numbers were informative for broad outcomes and aggregate scoring, but turning them into one rounded score still loses a lot of distributional information.",
     ]
-    (REPORTS_DIR / "worldcup_2026_group_stage_model_performance.md").write_text(
+    INTERNAL_DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    (INTERNAL_DOCS_DIR / "worldcup_2026_group_stage_model_performance.md").write_text(
         "\n".join(lines),
         encoding="utf-8",
     )

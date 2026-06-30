@@ -60,6 +60,11 @@ reports/tmp/
 reports/figures/tmp*/
 reports/figures/*.tmp
 reports/figures/*.tmp.*
+docs/internal/generated/
+docs/internal/tmp/
+docs/internal/figures/tmp*/
+docs/internal/figures/*.tmp
+docs/internal/figures/*.tmp.*
 
 # Logs and temporary files
 *.log

@@ -25,7 +25,7 @@ from src.models.train_target_model import train_selected_target_model
 from src.models.weighting import combined_sample_weights
 from src.utils.config import config_value
 from src.utils.logging import setup_logging
-from src.utils.paths import MODELS_DIR, PREDICTIONS_DIR, PROCESSED_DATA_DIR, REPORTS_DIR, ensure_project_dirs
+from src.utils.paths import INTERNAL_DOCS_DIR, MODELS_DIR, PREDICTIONS_DIR, PROCESSED_DATA_DIR, ensure_project_dirs
 
 
 LOGGER = setup_logging(__name__)
@@ -372,8 +372,9 @@ def _write_report(results: pd.DataFrame, summary: pd.DataFrame, selection: dict[
         "",
         "Accuracy was treated as secondary. These experiments remain noisy because only four World Cups are available as frozen test tournaments.",
     ]
-    (REPORTS_DIR / "target_experiment_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
-    evaluation_path = REPORTS_DIR / "evaluation.md"
+    INTERNAL_DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    (INTERNAL_DOCS_DIR / "target_experiment_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    evaluation_path = INTERNAL_DOCS_DIR / "evaluation.md"
     _replace_generated_section(
         evaluation_path,
         "target-experiments",
@@ -385,7 +386,7 @@ def _write_report(results: pd.DataFrame, summary: pd.DataFrame, selection: dict[
             f"- Mean Brier score: **{selection['avg_brier_score']:.4f}**.",
             f"- Mean top-5 scoreline hit rate: **{selection['avg_scoreline_top_5_hit_rate']:.1%}**.",
             "- Future-form targets were generated separately and skipped as model inputs because of leakage risk.",
-            "- See `reports/target_experiment_report.md` for the full comparison.",
+            "- See `docs/internal/target_experiment_report.md` for the full comparison.",
         ],
     )
 

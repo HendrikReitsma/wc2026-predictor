@@ -22,7 +22,7 @@ from src.models.train_goal_model import GOAL_FEATURE_GROUPS
 from src.models.weighting import combined_sample_weights
 from src.utils.config import config_value
 from src.utils.logging import setup_logging
-from src.utils.paths import MODELS_DIR, PREDICTIONS_DIR, PROCESSED_DATA_DIR, REPORTS_DIR, ensure_project_dirs
+from src.utils.paths import INTERNAL_DOCS_DIR, MODELS_DIR, PREDICTIONS_DIR, PROCESSED_DATA_DIR, ensure_project_dirs
 
 
 LOGGER = setup_logging(__name__)
@@ -468,7 +468,8 @@ def _write_report(
         "- The smoothed dynamic rating is Glicko-style, not a complete implementation of official Glicko-2.",
         "- Calibration and draw correction use chronological calibration tails only.",
     ]
-    (REPORTS_DIR / "training_strategy_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    INTERNAL_DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    (INTERNAL_DOCS_DIR / "training_strategy_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def run_training_strategy_search() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:

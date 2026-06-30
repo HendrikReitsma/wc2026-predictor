@@ -256,5 +256,5 @@ Positive `log_loss_improvement_vs_unweighted` means the weighting choice helped.
 - Mean Brier score: **0.5654**.
 - Mean top-5 scoreline hit rate: **55.5%**.
 - Future-form targets were generated separately and skipped as model inputs because of leakage risk.
-- See `reports/target_experiment_report.md` for the full comparison.
+- See `docs/internal/target_experiment_report.md` for the full comparison.
 <!-- target-experiments:end -->

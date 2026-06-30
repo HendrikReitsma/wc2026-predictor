@@ -14,7 +14,7 @@ Local sources:
 - `data/predictions/group_stage_prediction_evaluation_metrics.json`
 - `data/predictions/group_stage_prediction_evaluation.csv`
 - `reports/model_card.md`
-- `reports/evaluation.md`
+- `docs/internal/evaluation.md`
 
 External sources:
 
@@ -98,4 +98,3 @@ Cup26/Hicruben is the strongest public comparison on headline RPS, but the publi
 2. Add a favorite-confidence shrinkage or calibration experiment focused on mismatches, especially the 0-0 and 1-1 draw tail.
 3. Report both probabilistic and Scorito-style metrics. RPS/log loss answer "were the probabilities good?" while rounded-score accuracy answers "was the entered score useful?"
 4. Treat the public-repo differences as small-sample evidence, not proof. A 72-match World Cup group stage is informative, but one or two surprising draws can move the leaderboard.
-
