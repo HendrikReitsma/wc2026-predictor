@@ -1,0 +1,5 @@
+match_id,date,home_team,away_team,home_score,away_score,tournament,city,country,neutral,group,source_name,source_url,stage,winner,loser,decided_by,penalty_home_score,penalty_away_score
+73,2026-06-28,South Africa,Canada,0,1,FIFA World Cup,Los Angeles (Inglewood),United States,True,,SB Nation,https://www.sbnation.com/soccer/1120771/world-cup-schedule-scores-round-32,Round of 32,Canada,South Africa,score,,
+74,2026-06-29,Germany,Paraguay,1,1,FIFA World Cup,Boston (Foxborough),United States,True,,SB Nation,https://www.sbnation.com/soccer/1120771/world-cup-schedule-scores-round-32,Round of 32,Paraguay,Germany,penalties,3.0,4.0
+75,2026-06-29,Netherlands,Morocco,1,1,FIFA World Cup,Monterrey (Guadalupe),Mexico,True,,SB Nation,https://www.sbnation.com/soccer/1120771/world-cup-schedule-scores-round-32,Round of 32,Morocco,Netherlands,penalties,2.0,3.0
+76,2026-06-29,Brazil,Japan,2,1,FIFA World Cup,Houston,United States,True,,SB Nation,https://www.sbnation.com/soccer/1120771/world-cup-schedule-scores-round-32,Round of 32,Brazil,Japan,score,,

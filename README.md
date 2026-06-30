@@ -6,26 +6,33 @@ The project combines chronological team ratings, rolling team form, Poisson expe
 
 ## Current Performance
 
-These metrics evaluate the frozen pre-tournament group-stage predictions against completed World Cup 2026 group matches.
+These metrics evaluate the frozen pre-tournament group-stage predictions plus any completed knockout matches that have resolved prediction rows.
 
 <!-- wc2026-metrics:start -->
-_Last updated by `python scripts/update_results.py` at 2026-06-30 17:14 UTC._
+_Last updated by `python scripts/update_results.py` at 2026-06-30 17:43 UTC._
 
 | Metric | Current value |
 | --- | ---: |
-| Outcome accuracy | 63.9% |
-| Correct outcomes / total matches | 46 / 72 |
-| Log loss | 0.878 |
-| Brier score | 0.516 |
-| Ranked Probability Score | 0.153 |
-| Avg probability on actual result | 49.4% |
-| Exact score hit rate | 12.5% (9 / 72) |
-| Top-5 scoreline hit rate | 44.4% (32 / 72) |
-| Total goals expected vs actual | 202.3 vs 213 |
-| Rounded-xG outcome accuracy | 65.3% (47 / 72) |
+| Group outcome accuracy | 63.9% |
+| Group correct outcomes / total matches | 46 / 72 |
+| Group log loss | 0.878 |
+| Group Brier score | 0.516 |
+| Group Ranked Probability Score | 0.153 |
+| Group avg probability on actual result | 49.4% |
+| Group exact score hit rate | 12.5% (9 / 72) |
+| Group top-5 scoreline hit rate | 44.4% (32 / 72) |
+| Group total goals expected vs actual | 202.3 vs 213 |
+| Rounded-xG group outcome accuracy | 65.3% (47 / 72) |
+| Knockout matches evaluated | 4 |
+| Knockout advance accuracy | 50.0% (2 / 4) |
+| Knockout score-outcome accuracy | 50.0% (2 / 4) |
+| Knockout RPS | 0.153 |
+| Knockout total goals expected vs actual | 10.2 vs 8 |
 <!-- wc2026-metrics:end -->
 
-Full evaluation report: [reports/worldcup_2026_group_stage_model_performance.md](reports/worldcup_2026_group_stage_model_performance.md)
+Group evaluation report: [reports/worldcup_2026_group_stage_model_performance.md](reports/worldcup_2026_group_stage_model_performance.md)
+
+Knockout evaluation report: [reports/worldcup_2026_knockout_model_performance.md](reports/worldcup_2026_knockout_model_performance.md)
 
 ## What This Does
 
@@ -33,7 +40,7 @@ Full evaluation report: [reports/worldcup_2026_group_stage_model_performance.md]
 - Trains home/away goal models and outcome models.
 - Predicts match expected goals, W/D/L probabilities, scorelines, totals, and clean sheets.
 - Simulates the World Cup tournament with 10,000 Monte Carlo runs by default.
-- Evaluates completed group-stage predictions and updates this README.
+- Evaluates completed group-stage and resolved knockout predictions, then updates this README.
 
 ## Install
 
@@ -61,7 +68,7 @@ pip install -e .[dev]   # pytest
 
 ## Update After Matches
 
-After new group-stage results are available, run:
+After new World Cup results are available, run:
 
 ```bash
 python scripts/update_results.py
@@ -70,9 +77,13 @@ python scripts/update_results.py
 That command:
 
 - fetches the published World Cup 2026 group-stage scores,
-- merges them into `data/manual/worldcup_2026_group_results.csv` without duplicating matches,
-- re-runs the group-stage evaluation,
+- fetches available knockout scores from the configured knockout source pages,
+- merges group scores into `data/manual/worldcup_2026_group_results.csv` without duplicating matches,
+- merges knockout scores into `data/manual/worldcup_2026_knockout_results.csv` without duplicating matches,
+- resolves newly known knockout fixtures and writes prediction rows when the bracket can be resolved,
+- re-runs the group-stage and knockout evaluations,
 - rewrites `reports/worldcup_2026_group_stage_model_performance.md`,
+- rewrites `reports/worldcup_2026_knockout_model_performance.md`,
 - updates the metrics table in this README.
 
 If the source page is unavailable but the local results CSV is already current:
@@ -125,6 +136,7 @@ python scripts/predict_remaining_worldcup_2026.py --cutoff-date 2026-06-27 --n-s
 - **Exact score hit rate**: share of matches where the single most likely score was exactly right.
 - **Top-5 scoreline hit rate**: share where the actual score was among the model's five most likely scorelines.
 - **Rounded-xG outcome accuracy**: evaluates a Scorito-style entered score created by rounding expected home and away goals.
+- **Knockout advance accuracy**: share of completed knockout matches where the predicted advancer was correct.
 
 ## Project Notes
 
@@ -136,7 +148,7 @@ python scripts/predict_remaining_worldcup_2026.py --cutoff-date 2026-06-27 --n-s
 
 ## TODOs
 
-- Automate knockout-result ingestion and evaluation. The current `update_results.py` workflow is focused on the completed group-stage forecast evaluation.
+- Add official-source fallback parsers for later knockout rounds if SB Nation changes its article URLs or page format.
 - Add a small public sample dataset if you want the repo to run fully without downloading `data/raw/results.csv`.
 
 ## More Detail
@@ -144,5 +156,6 @@ python scripts/predict_remaining_worldcup_2026.py --cutoff-date 2026-06-27 --n-s
 - Method paper: [reports/methodology_research_paper.md](reports/methodology_research_paper.md)
 - Model card: [reports/model_card.md](reports/model_card.md)
 - Remaining tournament report: [reports/worldcup_2026_remaining_prediction_report.md](reports/worldcup_2026_remaining_prediction_report.md)
+- Knockout evaluation report: [reports/worldcup_2026_knockout_model_performance.md](reports/worldcup_2026_knockout_model_performance.md)
 - Public GitHub comparison: [reports/github_method_comparison.md](reports/github_method_comparison.md)
 

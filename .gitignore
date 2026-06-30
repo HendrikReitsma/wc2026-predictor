@@ -47,6 +47,7 @@ data/processed/*
 data/predictions/*
 !data/predictions/.gitkeep
 !data/predictions/group_stage_prediction_evaluation_metrics.json
+!data/predictions/knockout_prediction_evaluation_metrics.json
 data/manual/results.csv
 
 # Trained artifacts are reproducible and can be large
