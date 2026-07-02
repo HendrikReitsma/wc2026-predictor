@@ -13,18 +13,18 @@ python scripts/update_results.py
 ## Current Record
 
 <!-- wc2026-metrics:start -->
-_Last updated by `python scripts/update_results.py` at 2026-06-30 19:07 UTC._
+_Last updated by `python scripts/update_results.py` at 2026-07-02 10:20 UTC._
 
 | Metric | Current value |
 | --- | ---: |
-| Matches evaluated | 77 |
-| Outcome accuracy | 63.6% |
-| Correct outcomes / total | 49 / 77 |
-| Ranked Probability Score | 0.154 |
-| Log loss | 0.884 |
-| Brier score | 0.520 |
-| Avg probability on actual result | 48.7% |
-| Total goals expected vs actual | 215.4 vs 224 |
+| Matches evaluated | 82 |
+| Outcome accuracy | 65.9% |
+| Correct outcomes / total | 54 / 82 |
+| Ranked Probability Score | 0.150 |
+| Log loss | 0.859 |
+| Brier score | 0.502 |
+| Avg probability on actual result | 49.7% |
+| Total goals expected vs actual | 229.9 vs 239 |
 <!-- wc2026-metrics:end -->
 
 Current public performance report: [reports/current_performance.md](reports/current_performance.md)
